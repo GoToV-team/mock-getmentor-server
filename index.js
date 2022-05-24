@@ -35,7 +35,7 @@ let generateTask = (id) => {
 let generatePlan = (id) => {
   return {
     id,
-    title: faker.lorem.words,
+    title: faker.lorem.words(4),
     description: faker.lorem.lines(2),
     progress: Math.round(Math.random() * 100),
     skills: randomRange(1, 10).map(() => faker.lorem.words(1)),
@@ -49,6 +49,10 @@ let users = range(100).map(generateUser);
 let plans = range(1000).map(generatePlan);
 
 const app = express();
+app.disable('etag');
+app.use(morgan("dev"));
+
+
 app.get("/api/v1/skills", (req, res) => {
   res.send(randomRange(100, 500).map(() => faker.lorem.words(1)));
 });
@@ -58,9 +62,11 @@ app.get("/api/v1/search", (req, res) => {
 app.get("/api/v1/plans", (req, res) => {
   res.send(plans);
 });
+app.get("/api/v1/plan/:id", (req, res) => {
+    res.send(Object.assign({},plans[parseInt(req.params.id)], {isMentor: undefined}));
+  });
 
 const port = 3000;
-app.use(morgan("tiny"));
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
