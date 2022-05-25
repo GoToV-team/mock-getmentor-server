@@ -23,13 +23,17 @@ let generateUser = (id) => {
   };
 };
 
-let generateTask = (id) => {
-  return {
+let tasks = [];
+
+let generateTask = () => {
+  let id = tasks.length;
+  tasks.push({
     id,
     name: faker.lorem.words(3),
     about: faker.lorem.lines(2),
     isDone: Math.random() > 0.5,
-  };
+  });
+  return tasks[id];
 };
 
 let generatePlan = (id) => {
@@ -49,9 +53,7 @@ let users = range(100).map(generateUser);
 let plans = range(1000).map(generatePlan);
 
 const app = express();
-app.disable('etag');
 app.use(morgan("dev"));
-
 
 app.get("/api/v1/skills", (req, res) => {
   res.send(randomRange(100, 500).map(() => faker.lorem.words(1)));
@@ -63,8 +65,18 @@ app.get("/api/v1/plans", (req, res) => {
   res.send(plans);
 });
 app.get("/api/v1/plan/:id", (req, res) => {
-    res.send(Object.assign({},plans[parseInt(req.params.id)], {isMentor: undefined}));
-  });
+  res.send(
+    Object.assign({}, plans[parseInt(req.params.id)], { isMentor: undefined })
+  );
+});
+
+app.get("/api/v1/task/:id", (req, res) => {
+  res.send(
+    Object.assign({}, tasks[parseInt(req.params.id)], {
+      about: faker.lorem.paragraphs(10),
+    })
+  );
+});
 
 const port = 3000;
 app.listen(port, () => {
